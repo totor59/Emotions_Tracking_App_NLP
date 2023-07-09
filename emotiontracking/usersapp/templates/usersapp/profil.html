@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+
+<div class="shadow p-4 mb-5 bg-body bg-body rounded text-black m-5">
+
+{% if not user.is_patient %}
+
+<h1>Update Information</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-secondary" role="button">Save Changes</button>
+</form>
+
+{% else %}
+
+<h1>My Information:</h1>
+
+<ul class="list-group fs-4 mt-3">
+  <li class="list-group mt-2">First Name: {{ user.first_name }}</li>
+  <li class="list-group mt-2">Last Name: {{ user.last_name }}</li>
+  <li class="list-group mt-2">Username: {{ user.username }}</li>
+</ul>
+{% endif %}
+
+</div>
+
+<div class="shadow p-4 mb-5 bg-body bg-body rounded text-black m-5">
+  {% if not user.is_patient %}
+  <h2>Patient Statistics:</h2>
+  <p>Total patients followed: {{ patients_count }}</p>
+  <p>Current patients: {{ patients_not_left_count }}</p>
+  <p>Former patients: {{ patients_left_count }}</p>
+  {% endif %}
+
+</div>
+
+{% endblock %}

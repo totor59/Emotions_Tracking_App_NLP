@@ -1,0 +1,40 @@
+info.txt
+
+# Fichiers et répertoires spécifiques à Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+
+# Fichiers spécifiques à l'environnement de développement
+.env
+
+# Fichiers spécifiques à Docker et Docker Compose
+.dockerignore
+
+# Répertoires spécifiques à Docker
+data/db
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Fichiers spécifiques à l'IDE
+.vscode/
+.idea/
+
+# Répertoire des fichiers statiques collectés par Django
+staticfiles/
+
+# Répertoire des fichiers de médias téléchargés par les utilisateurs
+media/
+
+# Fichiers de sauvegarde
+*.bak
+*.swp
+*~
+
+# Fichiers de cache
+.cache/

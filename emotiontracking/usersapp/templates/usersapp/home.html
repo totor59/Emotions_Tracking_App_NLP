@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Emotion Tracking Application{% endblock %}
+
+{% block content %}
+
+<h1>Emotion Tracking Application</h1>
+{% if user.is_authenticated %}
+{% if not user.is_patient %}
+<p>Welcome to the Emotion Tracking tool! This tool allows you to better support your patients by using their writings in their digital journal. You can visualize important information and analyze their emotional trends.</p>
+    <a class="btn btn-primary" href="{% url 'create_patient' %}">Add a patient</a>
+    <a class="btn btn-primary" href="{% url 'patient_list' %}">My patients</a>
+{% else %}
+<p>Hello, {{ user.username }}, welcome to your digital journal! This tool allows you to write notes to express your emotions, memories, or anything that comes to mind. Your psychologist will have access to these notes. Your notes will be analyzed to gain insights into your emotional state. This will help your psychologist support you and guide you in your journey.</p>
+    <a class="btn btn-primary" href="{% url '#' %}">Add a note</a>
+    <a class="btn btn-primary" href="{% url '#' %}">My previous notes</a>
+{% endif %}
+{% else %}
+
+<p>You are not logged in.</p>
+<a href="/login">Log in</a>
+<a href="/register">Register</a>
+{% endif %}
+{% endblock %}

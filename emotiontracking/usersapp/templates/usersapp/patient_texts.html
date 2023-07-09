@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Text List</h1>
+  <ul>
+    {% for text in texts %}
+      <li>{{ text }}</li>
+    {% empty %}
+      <li>No texts available</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
