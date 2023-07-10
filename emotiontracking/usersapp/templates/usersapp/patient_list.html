@@ -1,93 +1,103 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
-{% load static %}
 {% block title %}Patient List{% endblock %}
 
 {% block content %}
-<div class="text-center mb-3">
-  <h2>My patients</h2>
+<h2 class="text-center"> List of my current patients</h2>
+<br>
+
+<div class="row">
+  <div class="col-md-4">
+    
+    <form method="get" action="{% url 'patient_list' %}">
+      <div class="form-group mb-3">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <label for="filter-name">Search by name:</label>
+        <input type="text" id="filter-name" name="filter_name" class="form-control" value="{{ filter_name }}">
+      </div>
+    </form>
+    <br><br>
+    <form method="POST" action="">
+      {% csrf_token %}
+      <div class="form-group ">
+        <label for="start-date">Start Date:</label>
+        <input type="date" id="start-date" name="start_date" class="form-control" value="{{ start_date }}">
+      </div>
+      <div class="form-group">
+        <label for="end-date">End Date:</label>
+        <input type="date" id="end-date" name="end_date" class="form-control" value="{{ end_date }}">
+      </div>
+      <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </form>
+  </div>
+  <div class="col-md-8">
+    {% if histogram_image %}
+      <img src="data:image/png;base64,{{ histogram_image }}" alt="Histogram" class="mx-auto d-block">
+    {% endif %}
+  </div>
 </div>
-<form method="get" action="{% url 'patient_list' %}">
-
-  <div class="form-group mb-3">
-    <label for="filter-name">Filter by Name:</label>
-    <input type="text" id="filter-name" name="filter_name" class="form-control" value="{{ filter_name }}">
+<br>
+<div class="row justify-content-center">
+  <div class="col-md-12">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Last Name</th>
+          <th>First Name</th>
+          <th>Patient Left</th>
+          <th>Date of Registration</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for patient in patients %}
+          <tr>
+            <td>{{ patient.last_name }}</td>
+            <td>{{ patient.first_name }}</td>
+            <td>{{ patient.patient_left }}</td>
+            <td>{{ patient.date_of_registration }}</td>
+            <td><a class="btn btn-secondary" role="button" href="{% url 'patient_infos' patient.username %}">Detail</a></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">No patients found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-</form>
-
-<!-- Form for date filtering -->
-<form method="POST" action="">
-  {% csrf_token %}
-  <div class="form-group">
-      <label for="start-date">Start Date:</label>
-      <input type="date" id="start-date" name="start_date" class="form-control" value="{{ start_date }}">
-  </div>
-  <div class="form-group">
-      <label for="end-date">End Date:</label>
-      <input type="date" id="end-date" name="end_date" class="form-control" value="{{ end_date }}">
-  </div>
-  <button type="submit" class="btn btn-primary">Apply Filter</button>
-</form>
-
-<!-- Patient list table -->
-<table class="table">
-  <thead>
-    <tr>
-      <th>Last Name</th>
-      <th>First Name</th>
-      <th>Patient Left</th>
-      <th>Date of Registration</th>
-      <th>Detail</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for patient in patients %}
-    <tr>
-      <td>{{ patient.last_name }}</td>
-      <td>{{ patient.first_name }}</td>
-      <td>{{ patient.patient_left }}</td>
-      <td>{{ patient.date_of_registration }}</td>
-      <td><a class="btn btn-secondary" role="button" href="{% url 'patient_infos' patient.username %}">Detail</a></td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="5">No patients found.</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-{% if histogram_image %}
-<h3>Emotion Distribution</h3>
-<img src="data:image/png;base64,{{ histogram_image }}" alt="Histogram">
-{% endif %}
+</div>
 
 
-<script>
-  // Fonction pour effectuer une recherche dynamique
-  function searchByName() {
-    var input = document.getElementById('filter-name');
-    var filter = input.value.toLowerCase();
-    var table = document.getElementsByTagName('table')[0];
-    var rows = table.getElementsByTagName('tr');
+  <script>
+    // Fonction pour effectuer une recherche dynamique
+    function searchByName() {
+      var input = document.getElementById('filter-name');
+      var filter = input.value.toLowerCase();
+      var table = document.getElementsByTagName('table')[0];
+      var rows = table.getElementsByTagName('tr');
 
-    // Parcourir toutes les lignes du tableau, sauter la première ligne (en-tête)
-    for (var i = 1; i < rows.length; i++) {
-      var row = rows[i];
-      var firstName = row.getElementsByTagName('td')[1];
-      var lastName = row.getElementsByTagName('td')[0];
+      // Parcourir toutes les lignes du tableau, sauter la première ligne (en-tête)
+      for (var i = 1; i < rows.length; i++) {
+        var row = rows[i];
+        var firstName = row.getElementsByTagName('td')[1];
+        var lastName = row.getElementsByTagName('td')[0];
 
-      // Vérifier si le nom ou prénom correspond à la recherche
-      if (firstName.innerHTML.toLowerCase().indexOf(filter) > -1 || lastName.innerHTML.toLowerCase().indexOf(filter) > -1) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
+        // Vérifier si le nom ou prénom correspond à la recherche
+        if (firstName.innerHTML.toLowerCase().indexOf(filter) > -1 || lastName.innerHTML.toLowerCase().indexOf(filter) > -1) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
       }
     }
-  }
 
-  // Ajouter un écouteur d'événements pour déclencher la recherche lors de la saisie
-  var inputName = document.getElementById('filter-name');
-  inputName.addEventListener('input', searchByName);
-</script>
+    // Ajouter un écouteur d'événements pour déclencher la recherche lors de la saisie
+    var inputName = document.getElementById('filter-name');
+    inputName.addEventListener('input', searchByName);
+  </script>
 {% endblock %}

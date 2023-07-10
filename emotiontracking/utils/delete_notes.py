@@ -1,7 +1,10 @@
 import requests
+import os
+
+elasticsearch_host = os.environ.get('ELASTICSEARCH_HOST', 'localhost:9200')
 
 def delete_documents(index):
-    url = f'http://10.16.0.19:9200/{index}/_delete_by_query'
+    url = f'http://{elasticsearch_host}:9200/{index}/_delete_by_query'
     query = {
         "query": {
             "match_all": {}

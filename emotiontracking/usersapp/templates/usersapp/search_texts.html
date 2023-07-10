@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Recherche de textes</h2>
+  <div class = "mb-5">
+  <form method="POST">
+    {% csrf_token %}
+    <label for="query_text">Expression :</label>
+    <input type="text" name="query_text" id="query_text">
+    <button type="submit" class="btn btn-primary">Rechercher</button>
+  </div>
+      {% if texts %}
+        <h4>Résultats de la recherche :</h4>
+        <table class ='table'>
+          <thead>
+            <tr>
+              <th>Text</th>
+              <th>Emotion</th>
+              <th>Patient</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for text in texts %}
+              <tr>
+                <td>{{ text.text }}</td>
+                <td>{{ text.emotion }}</td>
+                <td><a class="btn btn-danger" role="button"  href="{% url 'patient_infos' username=text.patient_username %}">{{ text.patient_username }}</a></td>
+                <td>{{ text.date }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    {% endblock %}
+    

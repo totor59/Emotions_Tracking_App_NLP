@@ -8,7 +8,7 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='usersapp/login.html'), name = 'login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='usersapp/logout.html'), name = 'logout'),
     path('register/', views.register, name='register'),
-    path('patient_texts/<str:username>/', views.patient_texts, name='patient_texts'),
+    # path('patient_texts/<str:username>/', views.patient_texts, name='patient_texts'),
     path('patient_infos/<str:username>/', views.patient_info, name='patient_infos'),
     path('update_patient_left/<str:username>/', views.update_patient_left, name='update_patient_left'),
     # path('password_reset/', auth_views.PasswordResetView.as_view(template_name='usersapp/password_reset.html'), name = 'password_reset'),
@@ -21,7 +21,8 @@ urlpatterns = [
     # path('change_password/', views.change_password, name='change_password'),
     path('patient_list/', views.patient_list, name='patient_list'),
     path('create_text/', views.create_text, name='create_text'),
-    path('text-list/', views.my_text_list, name='my_text_list'),
+    path('my-text-list/', views.my_text_list, name='my_text_list'),
+    path('search-texts/', views.search_texts, name='search_texts'),
 
 
 ]

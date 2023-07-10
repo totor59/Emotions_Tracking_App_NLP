@@ -1,6 +1,8 @@
 #!/bin/bash
 
-curl -X PUT "http://10.16.0.19:9200/notes" -H 'Content-Type: application/json' -d '
+ELASTICSEARCH_HOST="$ELASTICSEARCH_HOST"
+
+curl -X PUT "http://$ELASTICSEARCH_HOST:9200/notes" -H 'Content-Type: application/json' -d '
 {
   "mappings": {
     "properties": {
