@@ -1,6 +1,9 @@
 import os
 import sys
 import django
+from transformers import pipeline
+
+classifier = pipeline("sentiment-analysis", model="michellejieli/emotion_text_classifier")
 
 # Ajoutez le chemin du répertoire racine de votre projet Django
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -12,7 +15,7 @@ from usersapp.models import CustomUser
 import csv
 from django.utils import timezone
 import random
-from elasticsearch_dsl import connections, Document, Text, Date, Keyword, Integer
+from elasticsearch_dsl import connections, Document, Text, Date, Keyword
 import pickle
 from fake_date import generate_fake_date_between
 import psycopg2
@@ -22,9 +25,9 @@ import psycopg2
 elasticsearch_host = os.environ.get('ELASTICSEARCH_HOST', 'localhost:9200')
 connections.create_connection(hosts=[elasticsearch_host])
 
-# Charger le pipeline pré-entraîné
-with open('model/nlp-pipeline-linearsvc.pkl', 'rb') as f:
-    pipeline = pickle.load(f)
+# # Charger le pipeline pré-entraîné
+# with open('model/nlp-pipeline-linearsvc.pkl', 'rb') as f:
+#     pipeline = pickle.load(f)
 
 # Définir le document Elasticsearch pour les notes
 class NoteDocument(Document):
@@ -82,7 +85,8 @@ def populate_index(num_rows):
 
         for row in random_rows:
             text = row['Text']
-            emotion = pipeline.predict([text])[0]
+            emotion = classifier(text)[0]['label']
+
 
             # Récupérer la date d'inscription de l'utilisateur
             user_username = get_user()

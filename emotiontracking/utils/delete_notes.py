@@ -1,7 +1,7 @@
 import requests
 
 def delete_documents(index):
-    url = f'http://192.168.1.31:9200/{index}/_delete_by_query'
+    url = f'http://10.16.0.19:9200/{index}/_delete_by_query'
     query = {
         "query": {
             "match_all": {}

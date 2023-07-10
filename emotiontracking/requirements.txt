@@ -4,4 +4,6 @@ elasticsearch-dsl
 faker
 spacy
 scikit-learn
-seaborn
+matplotlib 
+transformers
+torch
