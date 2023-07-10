@@ -5,10 +5,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.urls import reverse
+from django.utils import timezone
 import random
 import base64
 from io import BytesIO
 from elasticsearch import Elasticsearch
+from transformers import pipeline
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('agg')  # or 'pdf'
@@ -287,3 +289,71 @@ def update_patient_left(request, username):
         patient.save()
         
     return redirect('patient_list')
+
+
+
+from django.shortcuts import render, redirect
+from .forms import TextForm
+from elasticsearch import Elasticsearch
+
+# Établir une connexion à Elasticsearch
+elasticsearch_host = os.environ.get('ELASTICSEARCH_HOST', 'localhost:9200')
+es = Elasticsearch(hosts=[elasticsearch_host])
+
+classifier = pipeline("sentiment-analysis", model="michellejieli/emotion_text_classifier")
+
+@login_required
+def create_text(request):
+    if request.method == 'POST':
+        form = TextForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            emotion = classifier(text)[0]['label']
+            user_username = request.user.username
+
+            # Enregistrer le texte dans la base de données Elasticsearch
+            document = {
+                'text': text,
+                'emotion': emotion,
+                'date': timezone.now().date(),
+                'patient_username': user_username,
+                # Ajoutez d'autres champs si nécessaire
+            }
+            index_name = 'notes'  # Nom de l'index Elasticsearch
+            es.index(index=index_name, body=document)
+
+            return redirect('home')  # Redirige vers la page d'accueil ou une autre page après l'enregistrement du texte
+    else:
+        form = TextForm()
+    return render(request, 'create_text.html', {'form': form})
+
+
+@login_required
+def my_text_list(request):
+    # Établir une connexion à Elasticsearch
+    elasticsearch_host = os.environ.get('ELASTICSEARCH_HOST', 'localhost:9200')
+    es = Elasticsearch(hosts=[elasticsearch_host])
+
+    # Récupérer les textes du patient courant depuis Elasticsearch
+    user_username = request.user.username
+    query = {
+        'query': {
+            'term': {
+                'patient_username': user_username
+            }
+        }
+    }
+    result = es.search(index='notes', body=query)
+
+    # Extraire les textes et leurs dates de la réponse Elasticsearch
+    texts = []
+    for hit in result['hits']['hits']:
+        text = hit['_source']['text']
+        date = hit['_source']['date']
+        texts.append({'text': text, 'date': date})
+
+    context = {
+        'texts': texts,
+    }
+
+    return render(request, 'my_text_list.html', context)

@@ -22,3 +22,8 @@ class PatientRegistrationForm(forms.ModelForm):
     class Meta:
         model = Patient
         fields = ['first_name', 'last_name', 'email']
+
+from django import forms
+
+class TextForm(forms.Form):
+    text = forms.CharField(label='Texte', widget=forms.Textarea)

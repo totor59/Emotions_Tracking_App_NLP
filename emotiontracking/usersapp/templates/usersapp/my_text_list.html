@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Liste de vos textes</h2>
+  {% if texts %}
+    <ul>
+      {% for text in texts %}
+        <li>{{ text.text }} - {{ text.date }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Aucun texte trouvé.</p>
+  {% endif %}
+{% endblock %}

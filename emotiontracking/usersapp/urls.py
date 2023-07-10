@@ -20,5 +20,8 @@ urlpatterns = [
     path('patient_credentials/<str:username>/<str:password>/<str:email>/', views.patient_credentials, name='patient_credentials'),
     # path('change_password/', views.change_password, name='change_password'),
     path('patient_list/', views.patient_list, name='patient_list'),
+    path('create_text/', views.create_text, name='create_text'),
+    path('text-list/', views.my_text_list, name='my_text_list'),
+
 
 ]

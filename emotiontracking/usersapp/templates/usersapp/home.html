@@ -12,8 +12,8 @@
     <a class="btn btn-primary" href="{% url 'patient_list' %}">My patients</a>
 {% else %}
 <p>Hello, {{ user.username }}, welcome to your digital journal! This tool allows you to write notes to express your emotions, memories, or anything that comes to mind. Your psychologist will have access to these notes. Your notes will be analyzed to gain insights into your emotional state. This will help your psychologist support you and guide you in your journey.</p>
-    <a class="btn btn-primary" href="{% url '#' %}">Add a note</a>
-    <a class="btn btn-primary" href="{% url '#' %}">My previous notes</a>
+    <a class="btn btn-primary" href="{% url 'create_text' %}">Add a note</a>
+    <a class="btn btn-primary" href="{% url 'my_text_list' %}">My previous notes</a>
 {% endif %}
 {% else %}
 

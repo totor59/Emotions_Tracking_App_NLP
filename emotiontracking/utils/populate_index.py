@@ -16,7 +16,6 @@ import csv
 from django.utils import timezone
 import random
 from elasticsearch_dsl import connections, Document, Text, Date, Keyword
-import pickle
 from fake_date import generate_fake_date_between
 import psycopg2
 
@@ -25,9 +24,6 @@ import psycopg2
 elasticsearch_host = os.environ.get('ELASTICSEARCH_HOST', 'localhost:9200')
 connections.create_connection(hosts=[elasticsearch_host])
 
-# # Charger le pipeline pré-entraîné
-# with open('model/nlp-pipeline-linearsvc.pkl', 'rb') as f:
-#     pipeline = pickle.load(f)
 
 # Définir le document Elasticsearch pour les notes
 class NoteDocument(Document):
