@@ -56,11 +56,12 @@
       <tbody>
         {% for patient in patients %}
           <tr>
-            <td>{{ patient.last_name }}</td>
-            <td>{{ patient.first_name }}</td>
+            <td>{{ patient.patient_id.last_name }}</td>
+            <td>{{ patient.patient_id.first_name }}</td>
             <td>{{ patient.patient_left }}</td>
-            <td>{{ patient.date_of_registration }}</td>
-            <td><a class="btn btn-secondary" role="button" href="{% url 'patient_infos' patient.username %}">Detail</a></td>
+            <td>{{ patient.patient_id.date_of_registration }}</td>
+            <td>{{ patient.patient_id.username }}</td>
+            <td><a class="btn btn-secondary" role="button" href="{% url 'patient_infos' patient.patient_id %}">Detail</a></td> 
           </tr>
         {% empty %}
           <tr>

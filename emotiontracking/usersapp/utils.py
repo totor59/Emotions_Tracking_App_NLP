@@ -27,7 +27,7 @@ def generate_histogram(emotions, occurrences):
     return image_base64
 
 
-def request_emotion(patient, es, start_date=None, end_date=None):
+def request_emotion(patient_id, es, start_date=None, end_date=None):
     if start_date is None:
         start_date = "1970-01-01" 
     if end_date is None:
@@ -37,7 +37,7 @@ def request_emotion(patient, es, start_date=None, end_date=None):
         "query": {
             "bool": {
                 "must": [
-                    {"term": {"patient_username": patient.username}}
+                    {"term": {"patient_id": patient_id}}
                 ],
                 "filter": {
                     "range": {

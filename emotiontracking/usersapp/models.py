@@ -10,19 +10,11 @@ class CustomUser(AbstractUser):
     is_patient = models.BooleanField(default=False)
 
 
-from django.db import models
-from django.contrib.auth.models import User
-from django.utils import timezone
-
 class Patient(models.Model):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    username = models.CharField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
-    email = models.EmailField()
+    patient_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     patient_left = models.BooleanField(default=False)
-    date_of_registration = models.DateField(default=timezone.now)
-    followed_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, to_field='username')
-    
+    followed_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True, related_name='patient_followed_by')
+
     def __str__(self):
-        return self.username
+        return self.patient_id.username
+

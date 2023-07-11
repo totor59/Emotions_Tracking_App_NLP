@@ -11,10 +11,10 @@
   <div class="col-md-3">
     <a class="btn btn-secondary" role="button" href="{% url 'patient_list' %}">Go back to my patient list</a
     <br>
-    <p>Last Name: {{ patient.last_name }}</p>
-    <p>First Name: {{ patient.first_name }}</p>
+    <p>Last Name: {{ patient.patient_id.last_name }}</p>
+    <p>First Name: {{ patient.patient_id.first_name }}</p>
     <!-- Form to update patient_left status -->
-    <form method="POST" action="{% url 'update_patient_left' patient.username %}">
+    {% comment %} <form method="POST" action="{% url 'update_patient_left' patient.username %}">
       {% csrf_token %}
       <div class="form-group">
         <label for="patient-left">Patient Left:</label>
@@ -23,7 +23,7 @@
           <option value="False"{% if not patient.patient_left %} selected{% endif %}>False</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary">Update</button>
+      <button type="submit" class="btn btn-primary">Update</button> {% endcomment %}
     </form>
     <br>
     <!-- Form for date filtering -->

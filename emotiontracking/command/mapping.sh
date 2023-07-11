@@ -9,7 +9,7 @@ curl -X PUT "http://${elasticsearch_host}/notes" -H 'Content-Type: application/j
       "text": {"type": "text"},
       "date": {"type": "date" },
       "emotion": {"type": "keyword"},
-      "patient_username": {"type": "keyword"}
+      "patient_id": {"type": "integer"}
     }
   }
 }'

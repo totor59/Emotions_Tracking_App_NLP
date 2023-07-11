@@ -18,13 +18,12 @@ def create_random_patient(num_patients):
     for _ in range(num_patients):
         first_name = faker.first_name()
         last_name = faker.last_name()
-        username = first_name[0].lower() + last_name.lower() + str(random.randint(100, 999))
-        plain_password = username + str(random.randint(10, 99))
-        password = make_password(plain_password)
+        username = first_name[0].lower() + last_name.lower() + str(random.randint(10, 99))
+        plain_password = username 
         email = f"{username}@example.com"
         date_of_registration = generate_fake_date()
         patient_left = random.choice([True, False])
-        
+
         followed_by = random.choice(CustomUser.objects.filter(is_patient=False))
 
         user = CustomUser.objects.create_user(username=username, password=plain_password, email=email, 
@@ -32,13 +31,8 @@ def create_random_patient(num_patients):
                                               date_of_registration = date_of_registration)
         
         patient = Patient.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            username=username,
-            password=password,
-            email=email,
+            patient_id = user, 
             followed_by=followed_by,
-            date_of_registration=date_of_registration,
             patient_left=patient_left
         )
 

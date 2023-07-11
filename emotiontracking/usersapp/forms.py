@@ -20,7 +20,7 @@ class PatientRegistrationForm(forms.ModelForm):
     email = forms.EmailField(label='E-mail')
     
     class Meta:
-        model = Patient
+        model = CustomUser
         fields = ['first_name', 'last_name', 'email']
 
 from django import forms
