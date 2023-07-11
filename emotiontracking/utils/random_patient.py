@@ -1,7 +1,6 @@
 import os
 import sys
 import django
-from usersapp.models import Patient, CustomUser
 import random
 from faker import Faker
 from django.contrib.auth.hashers import make_password
@@ -10,6 +9,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'emotiontracking.settings')
 django.setup()
+from usersapp.models import Patient, CustomUser
 
 
 def create_random_patient(num_patients):
