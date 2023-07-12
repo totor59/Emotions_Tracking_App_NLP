@@ -9,8 +9,7 @@ from io import BytesIO
 from usersapp.models import Patient
 
 def connect_to_elasticsearch():
-    elasticsearch_host = os.environ.get('ELASTICSEARCH_HOST', 'localhost:9200')
-    es = Elasticsearch(hosts=[elasticsearch_host])
+    es = Elasticsearch('elasticsearch:9200')
     return es
 
 def generate_histogram(emotions, occurrences):

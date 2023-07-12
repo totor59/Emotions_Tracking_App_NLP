@@ -14,7 +14,7 @@
     <p>Last Name: {{ patient.patient_id.last_name }}</p>
     <p>First Name: {{ patient.patient_id.first_name }}</p>
     <!-- Form to update patient_left status -->
-    {% comment %} <form method="POST" action="{% url 'update_patient_left' patient.username %}">
+    <form method="POST" action="{% url 'update_patient_left' patient.patient_id_id %}">
       {% csrf_token %}
       <div class="form-group">
         <label for="patient-left">Patient Left:</label>
@@ -23,7 +23,7 @@
           <option value="False"{% if not patient.patient_left %} selected{% endif %}>False</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary">Update</button> {% endcomment %}
+      <button type="submit" class="btn btn-primary">Update</button> 
     </form>
     <br>
     <!-- Form for date filtering -->

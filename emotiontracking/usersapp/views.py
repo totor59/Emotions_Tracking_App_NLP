@@ -39,8 +39,8 @@ def register(request):
 def profil(request):
     user = request.user
     patients_count = Patient.objects.filter(followed_by=user).count()
-    # patients_left_count = Patient.objects.filter(followed_by=user, patient_left=True).count()
-    # patients_not_left_count = Patient.objects.filter(followed_by=user, patient_left=False).count()
+    patients_left_count = Patient.objects.filter(followed_by=user, patient_left=True).count()
+    patients_not_left_count = Patient.objects.filter(followed_by=user, patient_left=False).count()
     
     if request.method == 'POST':
         form = UserProfileForm(request.POST, instance=request.user)
@@ -54,8 +54,8 @@ def profil(request):
         'user': user,
         'form': form,
         'patients_count': patients_count,
-        # 'patients_left_count': patients_left_count,
-        # 'patients_not_left_count': patients_not_left_count,
+        'patients_left_count': patients_left_count,
+        'patients_not_left_count': patients_not_left_count,
     }
     return render(request, 'profil.html', context)
 
@@ -204,10 +204,10 @@ def patient_info(request, patient_id, start_date=None, end_date=None):
     return render(request, 'patient_infos.html', context)
 
 @login_required 
-def update_patient_left(request, username):
+def update_patient_left(request, patient_id):
     if request.method == 'POST':
         try:
-            patient = Patient.objects.get(username=username)
+            patient = Patient.objects.get(patient_id_id=patient_id)
         except Patient.DoesNotExist:
             return render(request, 'error.html', {'message': 'Patient not found'})
         
@@ -216,84 +216,87 @@ def update_patient_left(request, username):
         
     return redirect('patient_list')
 
-# @login_required
-# def create_text(request):
+@login_required
+def create_text(request):
     
-#     es = connect_to_elasticsearch()
-#     classifier = pipeline("sentiment-analysis", model="michellejieli/emotion_text_classifier")
+    es = connect_to_elasticsearch()
+    classifier = pipeline("sentiment-analysis", model="michellejieli/emotion_text_classifier")
     
-#     if request.method == 'POST':
-#         form = TextForm(request.POST)
-#         if form.is_valid():
-#             text = form.cleaned_data['text']
-#             emotion = classifier(text)[0]['label']
-#             user_username = request.user.username
+    if request.method == 'POST':
+        form = TextForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            emotion = classifier(text)[0]['label']
+            patient = Patient.objects.get(patient_id=request.user)  
+            patient_id = patient.id
 
-#             # Enregistrer le texte dans la base de données Elasticsearch
-#             document = {
-#                 'text': text,
-#                 'emotion': emotion,
-#                 'date': timezone.now().date(),
-#                 'patient_username': user_username,
-#                 # Ajoutez d'autres champs si nécessaire
-#             }
-#             index_name = 'notes'  # Nom de l'index Elasticsearch
-#             es.index(index=index_name, body=document)
+            document = {
+                'text': text,
+                'emotion': emotion,
+                'date': timezone.now().date(),
+                'patient_id': patient_id,
+            }
+            index_name = 'notes'  
+            es.index(index=index_name, body=document)
 
-#             return redirect('home')  # Redirige vers la page d'accueil ou une autre page après l'enregistrement du texte
-#     else:
-#         form = TextForm()
-#     return render(request, 'create_text.html', {'form': form})
+            return redirect('home')  
+    else:
+        form = TextForm()
+    return render(request, 'create_text.html', {'form': form})
 
-# @login_required
-# def my_text_list(request):
-#     es = connect_to_elasticsearch()
-#     patient =CustomUser.objects.get(username=request.user.username)    
-#     response = request_emotion(patient, es)
-#     texts = []
-#     for hit in response['hits']['hits']:
-#         text = hit['_source']['text']
-#         date = hit['_source']['date']
-#         texts.append({'text': text, 'date': date})
+@login_required
+def my_text_list(request):
+    es = connect_to_elasticsearch()
+    patient = Patient.objects.get(patient_id=request.user)  # Access the Patient object associated with the logged-in user
+    patient_id = patient.id
+    response = request_emotion(patient_id, es)
+    texts = []
+    for hit in response['hits']['hits']:
+        text = hit['_source']['text']
+        date = hit['_source']['date']
+        texts.append({'text': text, 'date': date})
 
-#     context = {'texts': texts}
+    context = {'texts': texts}
 
-#     return render(request, 'my_text_list.html', context)
+    return render(request, 'my_text_list.html', context)
 
-# @login_required
-# def search_texts(request):
-#     es = connect_to_elasticsearch()
+@login_required
+def search_texts(request):
+    es = connect_to_elasticsearch()
 
-#     if request.method == 'POST':
-#         query_text = request.POST.get('query_text', '')
+    if request.method == 'POST':
+        query_text = request.POST.get('query_text', '')
 
-#         must_filters = []
-#         if query_text:
-#             must_filters.append({'match': {'text': query_text}})
+        must_filters = []
+        if query_text:
+            must_filters.append({'match': {'text': query_text}})
 
-#         query = {
-#             "size": 10000,
-#             'query': {
-#                 'bool': {
-#                     'must': must_filters
-#                 }
-#             }
-#         }
-#         result = es.search(index='notes', body=query)
+        query = {
+            "size": 10000,
+            'query': {
+                'bool': {
+                    'must': must_filters
+                }
+            }
+        }
+        result = es.search(index='notes', body=query)
 
-#         texts = []
-#         for hit in result['hits']['hits']:
-#             text = hit['_source']['text']
-#             date = hit['_source']['date']
-#             emotion = hit['_source']['emotion']
-#             patient_username = hit['_source']['patient_username']
-#             texts.append({'text': text, 'date': date, 'emotion': emotion, 'patient_username': patient_username})
+        texts = []
+        for hit in result['hits']['hits']:
+            text = hit['_source']['text']
+            date = hit['_source']['date']
+            emotion = hit['_source']['emotion']
+            patient_id = hit['_source']['patient_id']
+            patient = Patient.objects.get(patient_id = request.user)
+            username = patient.patient_id.username
 
-#         context = {
-#             'texts': texts,
-#             'query_text': query_text,
-#         }
+            texts.append({'text': text, 'date': date, 'emotion': emotion, 'patient_username': username, 'patient_id': patient_id})
 
-#         return render(request, 'search_texts.html', context)
+        context = {
+            'texts': texts,
+            'query_text': query_text,
+        }
 
-#     return render(request, 'search_texts.html')
+        return render(request, 'search_texts.html', context)
+
+    return render(request, 'search_texts.html')

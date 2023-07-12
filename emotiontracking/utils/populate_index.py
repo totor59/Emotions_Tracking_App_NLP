@@ -15,8 +15,8 @@ django.setup()
 from usersapp.models import CustomUser
 
 
-elasticsearch_host = os.environ.get('ELASTICSEARCH_HOST', 'localhost:9200')
-connections.create_connection(hosts=[elasticsearch_host])
+# elasticsearch_host = os.environ.get('ELASTICSEARCH_HOST', 'localhost:9200')
+connections.create_connection(hosts='elasticsearch:9200')
 
 classifier = pipeline("sentiment-analysis", model="michellejieli/emotion_text_classifier")
 
