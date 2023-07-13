@@ -18,8 +18,6 @@ Les textes écrits par les patients soient automatiquement évalués par un mod�
 Les informations sur les patients et psychologues doivent être enregistrées dans une base postgres.  
 Les textes et les évaluations dans une base elastic search.   
 
-
-
 ## Installation
 
 1. Créer les fichiers .env avec les informations suivantes : 
@@ -32,32 +30,35 @@ DB_HOST=db
 
 SECRET_KEY = 'votre_secret_key_django'
 DEBUG = True
-
-ELASTICSEARCH_HOST=votre_adresse_ip:9200
 ```
 
-2. `docker compose up`  pour démarrer les conteneurs d'une application multi-conteneurs définie dans un fichier *docker-compose.yml*
+2. `docker build -t emotiontracking .` pour consuitre l'image 
 
-3. On a maintenant accès à :
+3. `docker compose up`  pour démarrer les conteneurs définie dans le fichier *docker-compose.yml*
+
+4. On a maintenant accès à :
 - l'application Django : http://localhost:8000/
 - la bdd postgresql (avec adminer) : http://localhost:8080/
 - la bdd ElasticSearch : http://localhost:9200/
 
-4. Pour ouvrir le shell du conteneur django : `docker compose exec web bash`
+5. Pour ouvrir le shell du conteneur django : `docker compose exec web bash`
 
-5. Depuis ce shell, vous pouvez créer un superuser si vous le souhaitez : `python manage.py createsuperuser`
+6. Depuis ce shell, vous pouvez créer un superuser si vous le souhaitez : `python manage.py createsuperuser`
 
 6. Il faut maintenant créer au moins 1 compte en tant que psychologue (depuis le shell, le portail admin ou depuis http://localhost:8000/register/)
 
-7. Pour remplir nos bdd, dans le shell du conteneur django : 
+8. Pour remplir nos bdd, executer les fichiers suivants dans le shell du conteneur django : 
 - `python utils/random_patient.py`: crée x patients (vous pouvez modifier ce nombre directement dans le fichier python, en argument de la fonction)
-- `python ./command/mapping.sh`pour créer l'index note 
+- `./command/mapping.sh`pour créer l'index note 
 - `python utils/populate_index.py` pour créer x document (vous pouvez modifier ce nombre directement dans le fichier python, en argument de la fonction)
 
-8. Vous pouvez maintenant naviguer sur l'application et accéder à toutes ses fonctionnalités.
+9. Vous pouvez maintenant naviguer sur l'application et accéder à toutes ses fonctionnalités.
 
-## Arborescence de fichier
+
+## Requirements
+
+Installez les bibliothèques requises à l'aide de `pip install -r requirements.txt` ou installez-les manuellement.
 
 
 ## Crédits
-Le modèle utilisé pour l'évaluation des textes a été entraîné, fine-tuné et déployé par Michelle Jieli. Vous pouvez trouver le modèle sur le hub Hugging Face à l'adresse suivante : Modèle d'évaluation des émotions
+Le modèle utilisé pour l'évaluation des textes a été entraîné, fine-tuné et déployé par Michelle Jieli. Vous pouvez trouver le modèle sur le hub Hugging Face à l'adresse suivante : https://huggingface.co/michellejieli/emotion_text_classifier
