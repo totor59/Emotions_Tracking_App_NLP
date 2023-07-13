@@ -4,7 +4,7 @@ services:
   db:
     image: postgres
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data/postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
     networks:
@@ -34,9 +34,11 @@ services:
       - mynetwork
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
     environment:
       - discovery.type=single-node
+    # volumes:
+    #   - ./data/elasticsearch_data:/usr/share/elasticsearch/data/nodes
     ports:
       - "9200:9200"
     networks:
@@ -45,3 +47,8 @@ services:
 networks:
   mynetwork:
     driver: bridge
+
+
+volumes:
+  postgres_data:
+  elasticsearch_data:

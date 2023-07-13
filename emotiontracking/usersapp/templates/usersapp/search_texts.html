@@ -25,7 +25,7 @@
               <tr>
                 <td>{{ text.text }}</td>
                 <td>{{ text.emotion }}</td>
-                <td><a class="btn btn-danger" role="button"  href="{% url 'patient_infos' username=text.patient_username %}">{{ text.patient_username }}</a></td>
+                <td><a class="btn btn-danger" role="button" href="{% url 'patient_infos' text.patient_id %}">{{ text.patient_username }}</a></td>
                 <td>{{ text.date }}</td>
               </tr>
             {% endfor %}

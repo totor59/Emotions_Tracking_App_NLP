@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser, Patient
+from .models import CustomUser
 
 class RegistrationForm(forms.ModelForm):
     class Meta:
@@ -20,10 +20,9 @@ class PatientRegistrationForm(forms.ModelForm):
     email = forms.EmailField(label='E-mail')
     
     class Meta:
-        model = Patient
+        model = CustomUser
         fields = ['first_name', 'last_name', 'email']
 
-from django import forms
 
 class TextForm(forms.Form):
     text = forms.CharField(label='Texte', widget=forms.Textarea)
