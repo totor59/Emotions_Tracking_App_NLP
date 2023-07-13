@@ -20,10 +20,11 @@
         <input type="text" id="filter-name" name="filter_name" class="form-control" value="{{ filter_name }}">
       </div>
     </form>
-    <br><br>
+    <br>
     <form method="POST" action="">
       {% csrf_token %}
       <div class="form-group ">
+        <p>  Filter texts by date to get the emotions distributions of my patients on this period :</p>
         <label for="start-date">Start Date:</label>
         <input type="date" id="start-date" name="start_date" class="form-control" value="{{ start_date }}">
       </div>

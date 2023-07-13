@@ -1,5 +1,5 @@
 from usersapp.models import Patient, CustomUser
-from usersapp.forms import PatientRegistrationForm, UserProfileForm, RegistrationForm
+from usersapp.forms import PatientRegistrationForm, UserProfileForm, RegistrationForm, PasswordChangeForm
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -97,6 +97,11 @@ def patient_credentials(request, username):
         'username': username,
     }
     return render(request, 'usersapp/patient_credentials.html', context)
+
+@login_required
+def change_password(request):
+    form = PasswordChangeForm()
+    return render(request, 'usersapp/change_password.html', {'form': form})
 
 @login_required
 def patient_list(request, start_date=None, end_date=None):
