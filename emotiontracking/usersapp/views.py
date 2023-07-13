@@ -99,11 +99,6 @@ def patient_credentials(request, username):
     return render(request, 'usersapp/patient_credentials.html', context)
 
 @login_required
-def change_password(request):
-    form = PasswordChangeForm()
-    return render(request, 'usersapp/change_password.html', {'form': form})
-
-@login_required
 def patient_list(request, start_date=None, end_date=None):
     es = connect_to_elasticsearch()
 

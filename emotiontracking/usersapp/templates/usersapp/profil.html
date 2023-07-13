@@ -15,9 +15,6 @@
   <button type="submit" class="btn btn-secondary" role="button">Save Changes</button>
 </form>
 
-<a class="btn btn-primary" href="{% url 'change_password' %}">Change my passwords</a> 
-
-
 <div class="shadow p-4 mb-5 bg-body bg-body rounded text-black m-5">
   {% if not user.is_patient %}
   <h2>Patient Statistics:</h2>
