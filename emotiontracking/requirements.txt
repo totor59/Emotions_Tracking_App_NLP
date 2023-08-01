@@ -1,10 +1,4 @@
 psycopg2-binary
 django
 elasticsearch-dsl
-faker
-spacy
-scikit-learn
-matplotlib 
-transformers
-torch
-xformers
+matplotlib

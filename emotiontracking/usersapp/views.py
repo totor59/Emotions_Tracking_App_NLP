@@ -1,5 +1,5 @@
 from usersapp.models import Patient, CustomUser
-from usersapp.forms import PatientRegistrationForm, UserProfileForm, RegistrationForm, PasswordChangeForm
+from usersapp.forms import PatientRegistrationForm, UserProfileForm, RegistrationForm
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -8,7 +8,6 @@ from django.urls import reverse
 from django.utils import timezone
 import random
 from .forms import TextForm
-from transformers import pipeline
 from .utils import *
 
 def home(request):
