@@ -12,7 +12,16 @@ services:
 
   web:
     build: ./emotiontracking
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command:
+      - bash
+      - -c
+      - |
+        sleep 90
+        python manage.py migrate
+        python ./src/postgre_patient_import.py
+        python ./src/elastic_mapping_import.py 
+        python manage.py runserver 0.0.0.0:8000
+        
     volumes:
       - ./emotiontracking:/app
     ports:
