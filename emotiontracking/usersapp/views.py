@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import make_password
 from django.urls import reverse
 from django.utils import timezone
 import random
+from elasticsearch import Elasticsearch
 from .forms import TextForm
 from .utils import *
 
@@ -222,8 +223,11 @@ def create_text(request):
     if request.method == 'POST':
         form = TextForm(request.POST)
         if form.is_valid():
-            connections.create_connection(hosts=f'{os.environ.get("ELASTICSEARCH_HOST")}:{os.environ.get("ELASTICSEARCH_PORT")}')
-            
+            es_host = os.environ.get('ELASTICSEARCH_HOST')
+            es_port = os.environ.get('ELASTICSEARCH_PORT')
+            elasticsearch_host_port = f'{es_host}:{es_port}'
+
+            es = Elasticsearch(elasticsearch_host_port)
 
             text = form.cleaned_data['text']
             emotion = query_model(text)
@@ -236,7 +240,7 @@ def create_text(request):
                 'patient_id': patient.id,
             }
             index_name = 'notes'  
-            connections.index(index=index_name, body=document)
+            es.index(index=index_name, body=document)
 
             return redirect('home')  
     else:

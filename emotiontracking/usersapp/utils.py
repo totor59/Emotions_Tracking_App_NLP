@@ -8,6 +8,7 @@ import base64
 from io import BytesIO
 from usersapp.models import Patient
 import requests
+import time
 
 def connect_to_elasticsearch():
     es = Elasticsearch('elasticsearch:9200')
@@ -76,8 +77,31 @@ def get_date_range(request):
     return start_date, end_date
 
 def query_model(payload):
-    mapping_dict = {"Label_0": 'anger', "Label_1": 'fear', "Label_2": 'happy', "Label_3": 'love', "Label_4": 'sadness', "Label_5": 'surprise'}
+    mapping_dict = {"LABEL_0": 'anger', "LABEL_1": 'fear', "LABEL_2": 'happy', "LABEL_3": 'love', "LABEL_4": 'sadness', "LABEL_5": 'surprise'}
     API_URL = "https://api-inference.huggingface.co/models/Charles-59800/my-awesome-model"
     headers = {"Authorization": f"Bearer {os.environ.get('HF_TOKEN')}"}
-    response = requests.post(API_URL, headers=headers, json=payload)
-    return mapping_dict[response.json()[0]['label']]
+    
+    
+    max_retries=5
+    retry_delay=5
+
+    retries = 0
+
+    while retries < max_retries:
+        response = requests.post(API_URL, headers=headers, json=payload)
+
+        if response.status_code == 200:
+            return mapping_dict[response.json()[0][0]['label']]
+        elif response.status_code == 503:
+            print("API not ready, retrying...")
+            retries += 1
+            time.sleep(retry_delay)
+        else:
+            print(f"Unexpected status code: {response.status_code}. Exiting.")
+            break
+
+    print(f"Max retries exceeded. API did not become ready.")
+    return None
+
+
+    
