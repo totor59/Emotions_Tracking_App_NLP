@@ -1,6 +1,10 @@
 psycopg2-binary
 django
+elasticsearch
 elasticsearch-dsl
 matplotlib
 faker
 datetime
+requests
+pytest 
+pytest-django

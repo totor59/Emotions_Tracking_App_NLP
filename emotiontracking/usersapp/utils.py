@@ -7,6 +7,7 @@ matplotlib.use('agg')  # or 'pdf'
 import base64
 from io import BytesIO
 from usersapp.models import Patient
+import requests
 
 def connect_to_elasticsearch():
     es = Elasticsearch('elasticsearch:9200')
@@ -74,3 +75,9 @@ def get_date_range(request):
 
     return start_date, end_date
 
+def query_model(payload):
+    mapping_dict = {"Label_0": 'anger', "Label_1": 'fear', "Label_2": 'happy', "Label_3": 'love', "Label_4": 'sadness', "Label_5": 'surprise'}
+    API_URL = "https://api-inference.huggingface.co/models/Charles-59800/my-awesome-model"
+    headers = {"Authorization": f"Bearer {os.environ.get('HF_TOKEN')}"}
+    response = requests.post(API_URL, headers=headers, json=payload)
+    return mapping_dict[response.json()[0]['label']]

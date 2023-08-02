@@ -10,6 +10,7 @@ import random
 from .forms import TextForm
 from .utils import *
 
+
 def home(request):
 	""" Renders the 'home.html' template, the home page of the website.
 
@@ -217,26 +218,25 @@ def update_patient_left(request, patient_id):
 
 @login_required
 def create_text(request):
-    
-    es = connect_to_elasticsearch()
-    classifier = pipeline("sentiment-analysis", model="michellejieli/emotion_text_classifier")
-    
+
     if request.method == 'POST':
         form = TextForm(request.POST)
         if form.is_valid():
+            connections.create_connection(hosts=f'{os.environ.get("ELASTICSEARCH_HOST")}:{os.environ.get("ELASTICSEARCH_PORT")}')
+            
+
             text = form.cleaned_data['text']
-            emotion = classifier(text)[0]['label']
+            emotion = query_model(text)
             patient = Patient.objects.get(patient_id=request.user)  
-            patient_id = patient.id
 
             document = {
                 'text': text,
                 'emotion': emotion,
                 'date': timezone.now().date(),
-                'patient_id': patient_id,
+                'patient_id': patient.id,
             }
             index_name = 'notes'  
-            es.index(index=index_name, body=document)
+            connections.index(index=index_name, body=document)
 
             return redirect('home')  
     else:
@@ -286,8 +286,9 @@ def search_texts(request):
             date = hit['_source']['date']
             emotion = hit['_source']['emotion']
             patient_id = hit['_source']['patient_id']
-            patient = Patient.objects.get(patient_id = request.user)
-            username = patient.patient_id.username
+            patient_user = CustomUser.objects.get(id = patient_id)
+            patient = Patient.objects.get(patient_id = patient_user)
+            username = patient.patient_id.first_name + ' ' + patient.patient_id.last_name
 
             texts.append({'text': text, 'date': date, 'emotion': emotion, 'patient_username': username, 'patient_id': patient_id})
 
