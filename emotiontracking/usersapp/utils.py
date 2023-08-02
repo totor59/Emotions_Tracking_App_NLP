@@ -10,6 +10,8 @@ from usersapp.models import Patient
 import requests
 import time
 
+from django.db.models import Q
+
 def connect_to_elasticsearch():
     es = Elasticsearch('elasticsearch:9200')
     return es
@@ -66,6 +68,43 @@ def generate_emotion_distribution(emotions, occurrences, response):
                 occurrences[index] += 1
     return(emotions, occurrences)
 
+def get_patient_list_info(filter_name,psy_id,start_date, end_date,es):
+    patients = Patient.objects.filter(followed_by_id=psy_id, patient_left=False)
+    
+    if filter_name != '':
+        patients = patients.filter(
+            Q(patient_id__first_name__icontains=filter_name) |
+            Q(patient_id__last_name__icontains=filter_name)
+        )
+    
+    
+    # Créer une liste pour stocker les informations des patients
+    emotions = []
+    occurrences = []
+    patient_infos = []
+    
+    for patient in patients:
+        # Récupérer l'objet CustomUser associé au patient
+        custom_user = patient.patient_id
+        
+        # Ajouter les informations du patient à la liste
+        patient_info = {
+            'first_name': custom_user.first_name,
+            'last_name': custom_user.last_name,
+            'username': custom_user.username,
+            'date_of_registration': custom_user.date_of_registration,
+        }
+        patient_infos.append(patient_info)
+        
+        # Récupérer les émotions du patient à partir d'Elasticsearch
+        patient_id = custom_user.id
+        response = request_emotion(patient_id, es, start_date, end_date)
+        
+        emotions, occurrences = generate_emotion_distribution(emotions, occurrences, response)
+    
+    return patients, patient_infos, emotions, occurrences
+
+
 def get_date_range(request):
     if request.method == 'POST':
         start_date = request.POST.get('start_date')
@@ -91,7 +130,11 @@ def query_model(payload):
         response = requests.post(API_URL, headers=headers, json=payload)
 
         if response.status_code == 200:
-            return mapping_dict[response.json()[0][0]['label']]
+            data = response.json()[0]
+            print(data)
+            max_score_label = max(data, key=lambda x: x['score'])['label']
+            print(max_score_label)
+            return mapping_dict[max_score_label]
         elif response.status_code == 503:
             print("API not ready, retrying...")
             retries += 1

@@ -1,6 +1,6 @@
 from usersapp.models import Patient, CustomUser
 from usersapp.forms import PatientRegistrationForm, UserProfileForm, RegistrationForm
-from django.db.models import Q
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
@@ -12,19 +12,32 @@ from .forms import TextForm
 from .utils import *
 
 
-def home(request):
-	""" Renders the 'home.html' template, the home page of the website.
+def home(request: HttpRequest) -> HttpResponse:
+    """Renders the 'home.html' template, the home page of the website.
 
     Args:
         request (HttpRequest): An object representing the current request.
 
     Returns:
         HttpResponse: A response object that renders the 'home.html' template.
-
     """
-	return render(request, 'usersapp/home.html')
+    return render(request, 'usersapp/home.html')
 
-def register(request):
+def register(request: HttpRequest) -> HttpResponse:
+    """Renders the 'register.html' template for user registration.
+
+    If the request method is POST, the function processes the submitted form,
+    creates a new user account, and redirects to the login page upon successful registration.
+
+    If the request method is GET, it displays an empty registration form.
+
+    Args:
+        request (HttpRequest): An object representing the current request.
+
+    Returns:
+        HttpResponse: A response object that renders the 'register.html' template with the registration form.
+        If the form is successfully submitted, it redirects to the 'login' page.
+    """
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -37,20 +50,37 @@ def register(request):
     return render(request, 'usersapp/register.html', {'form': form})
 
 @login_required
-def profil(request):
+def profil(request: HttpRequest) -> HttpResponse:
+    """Renders the 'profil.html' template for the user's profile.
+
+    The function retrieves information related to the user's profile and patients,
+    including the total count, the count of patients who left, and the count of patients who haven't left.
+
+    If the request method is POST, the function processes the submitted form
+    and updates the user's profile information. It then redirects back to the profile page.
+
+    If the request method is GET, it displays the user's profile information in a form.
+
+    Args:
+        request (HttpRequest): An object representing the current request.
+
+    Returns:
+        HttpResponse: A response object that renders the 'profil.html' template with the user's profile information.
+        If the form is successfully submitted, it redirects back to the 'profil' page.
+    """
     user = request.user
     patients_count = Patient.objects.filter(followed_by=user).count()
     patients_left_count = Patient.objects.filter(followed_by=user, patient_left=True).count()
     patients_not_left_count = Patient.objects.filter(followed_by=user, patient_left=False).count()
-    
+
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user)
+        form = UserProfileForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
             return redirect('profil')
     else:
-        form = UserProfileForm(instance=request.user)
-    
+        form = UserProfileForm(instance=user)
+
     context = {
         'user': user,
         'form': form,
@@ -61,13 +91,27 @@ def profil(request):
     return render(request, 'profil.html', context)
 
 @login_required
-def create_patient(request):
+def create_patient(request: HttpRequest) -> HttpResponse:
+    """Create a new patient.
+
+    If the request method is POST, the function processes the submitted form,
+    creates a new patient account, and redirects to the 'patient_credentials' page.
+
+    If the request method is GET, it displays an empty patient registration form.
+
+    Args:
+        request (HttpRequest): An object representing the current request.
+
+    Returns:
+        HttpResponse: A response object that renders the 'create_patient.html' template with the patient registration form.
+        If the form is successfully submitted, it redirects to the 'patient_credentials' page.
+    """
     if request.method == 'POST':
         form = PatientRegistrationForm(request.POST)
         if form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
-            username = first_name[0] + last_name + str(random.randint(10,99))
+            username = first_name[0] + last_name + str(random.randint(10, 99))
 
             plain_password = username
             user = CustomUser.objects.create_user(
@@ -80,7 +124,7 @@ def create_patient(request):
                 date_of_registration=timezone.now()
             )
 
-            patient = Patient.objects.create(
+            Patient.objects.create(
                 patient_id=user,
                 followed_by=request.user
             )
@@ -93,7 +137,17 @@ def create_patient(request):
 
 
 @login_required
-def patient_credentials(request, username):
+def patient_credentials(request: HttpRequest, username: str) -> HttpResponse:
+    """Display patient credentials for the given username.
+
+    Args:
+        request (HttpRequest): An object representing the current request.
+        username (str): The username of the patient for whom credentials are to be displayed.
+
+    Returns:
+        HttpResponse: A response object that renders the 'patient_credentials.html' template
+        with the patient's username in the context.
+    """
     context = {
         'username': username,
     }
@@ -103,51 +157,11 @@ def patient_credentials(request, username):
 def patient_list(request, start_date=None, end_date=None):
     es = connect_to_elasticsearch()
 
+    filter_name = request.GET.get('filter_name', '')
+    psy_id = request.user
     start_date, end_date = get_date_range(request)
     
-    filter_name = request.GET.get('filter_name', '')
-    
-    psy_id = request.user
-    
-    patients = Patient.objects.filter(followed_by_id=psy_id, patient_left=False)
-    
-    if filter_name != '':
-        patients = patients.filter(
-            Q(patient_id__first_name__icontains=filter_name) |
-            Q(patient_id__last_name__icontains=filter_name)
-        )
-    
-    emotions = []
-    occurrences = []
-    
-    # Créer une liste pour stocker les informations des patients
-    patient_infos = []
-    
-    for patient in patients:
-        # Récupérer l'objet CustomUser associé au patient
-        custom_user = patient.patient_id
-        
-        # Récupérer les informations de l'objet CustomUser
-        first_name = custom_user.first_name
-        last_name = custom_user.last_name
-        username = custom_user.username
-        date_of_registration = custom_user.date_of_registration
-        
-        # Ajouter les informations du patient à la liste
-        patient_info = {
-            'first_name': first_name,
-            'last_name': last_name,
-            'username': username,
-            'date_of_registration': date_of_registration,
-        }
-        patient_infos.append(patient_info)
-        
-        # Récupérer les émotions du patient à partir d'Elasticsearch
-        patient_id = patient.patient_id_id
-        response = request_emotion(patient_id, es, start_date, end_date)
-        
-        emotions, occurrences = generate_emotion_distribution(emotions, occurrences, response)
-        
+    patients, patient_infos, emotions, occurrences = get_patient_list_info(filter_name,psy_id,start_date, end_date,es)
         
     histogram_image = generate_histogram(emotions, occurrences)
     

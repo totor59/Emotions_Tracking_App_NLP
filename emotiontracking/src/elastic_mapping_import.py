@@ -110,12 +110,12 @@ def create_index_and_populate_if_not_exists():
         try:
             es = Elasticsearch(elasticsearch_host_port)
             print("Connected to Elasticsearch")
+            elasticsearch_setting(elasticsearch_url)
             try:
                 es.indices.get(index=INDEX_NAME)
                 print("Sample texts already created")
             except TransportError as e:
                 if e.status_code == 404:
-                    elasticsearch_setting(elasticsearch_url)
                     populate_index(elasticsearch_host_port)
                     print("Sample text created")
                 else:
