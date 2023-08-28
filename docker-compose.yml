@@ -16,6 +16,7 @@ services:
       - bash
       - -c
       - |
+        python manage.py makemigrations
         python manage.py migrate
         python ./src/postgre_patient_import.py
         python ./src/elastic_mapping_import.py 
