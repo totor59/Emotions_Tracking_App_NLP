@@ -19,7 +19,8 @@ services:
         python manage.py migrate
         python ./src/postgre_patient_import.py
         python ./src/elastic_mapping_import.py 
-        python manage.py runserver 0.0.0.0:8000
+        gunicorn emotiontracking.wsgi:application --bind 0.0.0.0:8000 
+  #python manage.py runserver 0.0.0.0:8000
         
     volumes:
       - ./emotiontracking:/app
@@ -48,6 +49,16 @@ services:
        - ./data/elasticsearch_data:/usr/share/elasticsearch/data/nodes
     ports:
       - "9200:9200"
+    networks:
+      - mynetwork
+
+  nginx:
+    build: ./nginx
+    container_name: test_deploy_nginx
+    ports:
+      - 8008:80
+    depends_on:
+      - web
     networks:
       - mynetwork
 
