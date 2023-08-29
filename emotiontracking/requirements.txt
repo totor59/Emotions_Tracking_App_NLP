@@ -1,5 +1,6 @@
 psycopg2-binary
 django
+djangorestframework
 elasticsearch
 elasticsearch-dsl
 matplotlib
@@ -8,3 +9,7 @@ datetime
 requests
 pytest 
 pytest-django
+asgiref
+pytz
+sqlparse
+gunicorn==20.0.4
